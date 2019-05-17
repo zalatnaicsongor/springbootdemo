@@ -2,9 +2,11 @@ package com.example.demo.book;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.micrometer.core.instrument.Counter;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -23,6 +25,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class BookServiceTest {
+
     @Mock
     private UUIDGenerator uuidGenerator;
 
@@ -34,6 +37,8 @@ class BookServiceTest {
 
     @Mock
     private CurrentTimeGenerator currentTimeGenerator;
+    @Mock
+    private Counter counter;
 
     private BookService bookService;
 
@@ -41,7 +46,7 @@ class BookServiceTest {
 
     @BeforeEach
     void setUp() {
-        bookService = new BookService(bookRepository, uuidGenerator, rabbitTemplate, currentTimeGenerator);
+        bookService = new BookService(bookRepository, uuidGenerator, rabbitTemplate, currentTimeGenerator, counter);
         when(uuidGenerator.newUUID()).thenReturn(superRandomUUID);
         when(currentTimeGenerator.getCurrentTime()).thenReturn(Instant.ofEpochSecond(5));
     }
@@ -50,6 +55,7 @@ class BookServiceTest {
     @DisplayName("Save book")
     //this is like 'describe()' in js
     public class SaveBook {
+
         @Test
         @DisplayName("It saves the book")
         //this is like 'it()' in js
@@ -66,6 +72,7 @@ class BookServiceTest {
     @Nested
     @DisplayName("Get book by id")
     public class GetBookById {
+
         private UUID existingId = UUID.fromString("2c570820-89f1-422c-9415-909c2d4c8d05");
         private UUID notFoundId = UUID.fromString("0d14fb61-f723-4527-9bf8-4af6418efbff");
 
@@ -76,6 +83,12 @@ class BookServiceTest {
         public void setUp() {
             when(bookRepository.findById(existingId)).thenReturn(Optional.of(book));
             when(bookRepository.findById(notFoundId)).thenReturn(Optional.empty());
+        }
+
+        @Test
+        public void itIncrementsTheCounter() {
+            bookService.getBookById(existingId);
+            verify(counter, times(1)).increment();
         }
 
         @Test
