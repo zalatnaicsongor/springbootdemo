@@ -11,6 +11,7 @@ public class Book {
     private UUID id;
     private String author;
     private String title;
+    private boolean published;
 
     Book() { // as required by ORM/JPA
 
@@ -20,6 +21,7 @@ public class Book {
         this.id = id;
         this.author = author;
         this.title = title;
+        this.published = false;
     }
 
     public String getAuthor() {
@@ -40,6 +42,14 @@ public class Book {
 
     public UUID getId() {
         return id;
+    }
+
+    public boolean isPublished() {
+        return published;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
     }
 
     @Override

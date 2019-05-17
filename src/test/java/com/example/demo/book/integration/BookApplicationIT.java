@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.demo.book.Book;
 import com.example.demo.book.SaveBookRequest;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +42,23 @@ public class BookApplicationIT {
         Book retrievedBook = this.restTemplate.getForObject(booksURL + "/" + createdBook.getId(), Book.class);
 
         assertThat(retrievedBook).isEqualTo(createdBook);
+    }
+
+    @Test
+    public void itCanPublishABook() {
+        Book createdBook = this.restTemplate.postForObject(
+            booksURL,
+            new SaveBookRequest("author", "title"),
+            Book.class
+        );
+
+        assertThat(createdBook.getAuthor()).isEqualTo("author");
+        assertThat(createdBook.getTitle()).isEqualTo("title");
+
+        this.restTemplate.postForObject(booksURL + "/" + createdBook.getId() + "/publish", null, Book.class);
+
+        Book retrievedBook = this.restTemplate.getForObject(booksURL + "/" + createdBook.getId(), Book.class);
+
+        assertThat(retrievedBook.isPublished()).isTrue();
     }
 }

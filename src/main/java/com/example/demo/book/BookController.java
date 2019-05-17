@@ -41,4 +41,9 @@ public class BookController {
     public Book getBookById(@PathVariable UUID id) {
         return bookService.getBookById(id);
     }
+
+    @PostMapping(value = "/{id}/publish")
+    public void publishBook(@PathVariable UUID id) {
+        bookService.publishBookById(id);
+    }
 }
