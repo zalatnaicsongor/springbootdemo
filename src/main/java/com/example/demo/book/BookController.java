@@ -1,6 +1,5 @@
 package com.example.demo.book;
 
-import com.example.demo.book.configuration.DummyConfiguration;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
